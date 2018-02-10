@@ -1,6 +1,11 @@
-= OpenWhisk -  Spring Cloud Functions - Greeter
+= OpenShift - OpenWhisk - Spring Cloud Functions
 
-A demo application to show deploying Spring Boot functions application to OpenWhisk deployed on OpenShift/Kubernetes
+**Greeter** demo application shows deploying https://github.com/spring-cloud/spring-cloud-function[Spring Cloud Functions] application to OpenWhisk deployed on 
+OpenShift/Kubernetes. 
+
+== Overview
+
+This example shows how to build and deploy a Spring Boot Application with functions defined as Spring Beans.
 
 == Pre-requisite
 
