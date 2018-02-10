@@ -65,9 +65,45 @@ wsk -i update create hello --docker kameshsampath/ow-scf-greeter
 
 === Testing Function
 
+==== OpenWhisk CLI 
+
 As the function takes single parameter called `name`, it is required to pass it via function parameter 
 name called `payload`. The following snippet shows how to invoke it via OpenWhisk CLI:
 
 [code,sh]
 ----
 wsk -i action invoke greeter -p payload spring --result
+----
+
+==== REST API 
+
+Each OpenWhisk action that is deployed can be invoked using https://github.com/apache/incubator-openwhisk/blob/master/docs/rest_api.md[REST API]:
+
+[code,sh]
+----
+URL=$(wsk -i action get greeter --url | tail -n 1) <1>
+AUTH=$(wsk -i property get --auth | awk '{print $3}') <2>
+curl -k -H "Content-Type: application/json" -u "$AUTH" -d '{"payload": "openshift"}' $URL <3>
+wsk -i activation result [activationId from <3>]  <4>
+----
+<1> Get the function REST url 
+<2> Get the credentials to invoke the action
+<3> Will return a activation id e.g. `{"activationId":"3fc210dc8acf47788210dc8acf277875"}`
+<4> Will output the result of curl call
+
+== Base Docker Images
+
+The Spring Boot applications need to build the custom docker images to run the app, the details of how to build the docker image is 
+available https://github.com/spring-cloud/spring-cloud-function/tree/master/spring-cloud-function-adapters/spring-cloud-function-adapter-openwhisk[here], 
+
+For convenience the following docker images are built and available to be used to run Spring Cloud Functions on OpenWhisk:
+
+* `https://hub.docker.com/r/kameshsampath/ow-scf-base/` - this base image for all OpenWhisk and Spring Cloud Functions applications
+
+* `https://hub.docker.com/r/kameshsampath/ow-scf-app-runner/` - this image extends base image and suitable for running Spring Cloud Function Spring Boot Applications
+
+* `https://hub.docker.com/r/kameshsampath/ow-scf-fn-runner/` - this image extends base image and suitable for running Spring Cloud Function Applications as POF
+
+The sources of the docker images is available https://github.com/redhat-developer-demos/openwhisk-scf-docker[here]
+
+NOTE: Applications and bases images uses **SNAPSHOT** builds
