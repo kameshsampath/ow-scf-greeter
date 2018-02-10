@@ -1,0 +1,68 @@
+= OpenWhisk -  Spring Cloud Functions - Greeter
+
+A demo application to show deploying Spring Boot functions application to OpenWhisk deployed on OpenShift/Kubernetes
+
+== Pre-requisite
+
+* https://github.com/minishift/minishift[Minishift]
+* https://github.com/apache/incubator-openwhisk/blob/master/docs/cli.md[OpenWhisk CLI]
+* https://github.com/projectodd/incubator-openwhisk-deploy-kube/tree/simplify-deployment-openshift[OpenWhisk Deployed on OpenShift/Kubernetes]
+
+== Build 
+
+=== Build application
+[code,sh]
+----
+./mvnw clean install
+----
+
+=== Docker Build application
+
+To make the builds faster and resolve to right repositories the application uses `contrib/settings.xml` during
+build. 
+
+NOTE: The default app is configured to use mirrors, it can be removed if you don't use nexus
+
+The Docker build takes the following arguments,
+
+* `APP_VERSION` default `0.0.1-SNAPSHOT`
+* `SPRING_BOOT_VERSION` default `1.5.9.RELEASE`
+* `SPRING_CLOUD_FUNCTION_VERSION` default `1.0.0.BUILD-SNAPSHOT`
+* `JAVA_APP_NAME` default `com.redhat.developers.greeter.GreeterApplication`
+* `FUNCTION_NAME` default `greeter`
+
+[code,sh]
+----
+docker-hello-app:
+	docker build --rm \
+	--build-arg APP_VERSION=$(APP_VERSION) \
+	--build-arg SPRING_BOOT_VERSION=$(SPRING_BOOT_VERSION) \
+	--build-arg SPRING_CLOUD_FUNCTION_VERSION=$(SPRING_CLOUD_FUNCTION_VERSION) \
+	--build-arg JAVA_APP_NAME=$(JAVA_APP_NAME) \
+    --build-arg FUNCTION_NAME=$(FUNCTION_NAME) \
+	--tag kameshsampath/ow-scf-greeter .
+----
+
+=== Deploying Function to OpenWhisk
+
+==== Create 
+
+[code,sh]
+----
+wsk -i action create hello --docker kameshsampath/ow-scf-greeter
+----
+==== Update 
+
+[code,sh]
+----
+wsk -i update create hello --docker kameshsampath/ow-scf-greeter
+----
+
+=== Testing Function
+
+As the function takes single parameter called `name`, it is required to pass it via function parameter 
+name called `payload`. The following snippet shows how to invoke it via OpenWhisk CLI:
+
+[code,sh]
+----
+wsk -i action invoke greeter -p payload spring --result
